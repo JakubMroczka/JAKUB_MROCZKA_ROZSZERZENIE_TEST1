@@ -1,6 +1,10 @@
-package pl.kurs.fig;
+package pl.kurs.fig.model;
 
-public final class Rectangle implements Shape {
+import lombok.Getter;
+import pl.kurs.fig.interfaces.Shape;
+
+@Getter
+public class Rectangle implements Shape {
     private final double width;
     private final double height;
 
@@ -10,26 +14,13 @@ public final class Rectangle implements Shape {
         this.height = height;
     }
 
-    double getWidth() {
-        return width;
-    }
-
-    double getHeight() {
-        return height;
-    }
-
     @Override
-    public double area() {
+    public double calculateArea() {
         return width * height;
     }
 
     @Override
-    public double perimeter() {
+    public double calculatePerimeter() {
         return 2 * (width + height);
-    }
-
-    @Override
-    public String type() {
-        return "rectangle";
     }
 }

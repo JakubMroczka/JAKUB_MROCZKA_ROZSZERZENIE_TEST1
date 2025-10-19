@@ -1,4 +1,6 @@
-package pl.kurs.fig;
+package pl.kurs.fig.model;
+
+import pl.kurs.fig.interfaces.ShapeCache;
 
 public class ShapeFactory {
     private final ShapeCache cache;
@@ -20,10 +22,5 @@ public class ShapeFactory {
     public Rectangle createRectangle(double width, double height) {
         String key = "rectangle:" + width + "x" + height;
         return (Rectangle) cache.computeIfAbsent(key, k -> new Rectangle(width, height));
-    }
-
-    private Shape putAndReturn(String key, Shape s) {
-        cache.put(key, s);
-        return s;
     }
 }

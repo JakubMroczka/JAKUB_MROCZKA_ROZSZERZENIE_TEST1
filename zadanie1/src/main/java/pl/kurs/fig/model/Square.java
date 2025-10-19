@@ -1,6 +1,10 @@
-package pl.kurs.fig;
+package pl.kurs.fig.model;
 
-public final class Square implements Shape {
+import lombok.Getter;
+import pl.kurs.fig.interfaces.Shape;
+
+@Getter
+public class Square implements Shape {
     private final double side;
 
     Square(double side) {
@@ -8,22 +12,13 @@ public final class Square implements Shape {
         this.side = side;
     }
 
-    double getSide() {
-        return side;
-    }
-
     @Override
-    public double area() {
+    public double calculateArea() {
         return side * side;
     }
 
     @Override
-    public double perimeter() {
+    public double calculatePerimeter() {
         return 4 * side;
-    }
-
-    @Override
-    public String type() {
-        return "square";
     }
 }

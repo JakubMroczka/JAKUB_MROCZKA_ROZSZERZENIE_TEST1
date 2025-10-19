@@ -1,5 +1,9 @@
 package pl.kurs.fig;
 
+import pl.kurs.fig.interfaces.Shape;
+import pl.kurs.fig.model.ShapeFactory;
+import pl.kurs.fig.service.ShapeService;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,6 +26,6 @@ public class Main {
         List<Shape> back = service.importFromJson(path, factory);
 
         System.out.println("Saved to: " + path);
-        System.out.println("Loaded " + back.size() + " figures. First: " + back.get(0).type());
+        System.out.println("Loaded " + back.size() + " figures. First: " + back.get(0));
     }
 }

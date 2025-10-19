@@ -1,10 +1,13 @@
 package pl.kurs.fx;
 
+import pl.kurs.fx.model.CurrencyPair;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.DoubleSupplier;
 
 
 public class TtlRateCache {
@@ -41,7 +44,7 @@ public class TtlRateCache {
         return Optional.of(e.value);
     }
 
-    public double get(CurrencyPair key, java.util.function.DoubleSupplier loader) {
+    public double get(CurrencyPair key, DoubleSupplier loader) {
         long now = clock.millis();
         Entry e = map.compute(key, (k, old) -> {
             if (old == null || now >= old.expiresAtMillis) {

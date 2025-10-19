@@ -1,6 +1,10 @@
-package pl.kurs.fig;
+package pl.kurs.fig.model;
 
-public final class Circle implements Shape {
+import lombok.Getter;
+import pl.kurs.fig.interfaces.Shape;
+
+@Getter
+public class Circle implements Shape {
     private final double radius;
 
     Circle(double radius) {
@@ -8,22 +12,13 @@ public final class Circle implements Shape {
         this.radius = radius;
     }
 
-    double getRadius() {
-        return radius;
-    }
-
     @Override
-    public double area() {
+    public double calculateArea() {
         return Math.PI * radius * radius;
     }
 
     @Override
-    public double perimeter() {
+    public double calculatePerimeter() {
         return 2 * Math.PI * radius;
-    }
-
-    @Override
-    public String type() {
-        return "circle";
     }
 }

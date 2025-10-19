@@ -1,6 +1,8 @@
-package pl.kurs.fx;
+package pl.kurs.fx.model;
 
 import java.util.Objects;
+
+
 
 public class CurrencyPair {
     private final String from;

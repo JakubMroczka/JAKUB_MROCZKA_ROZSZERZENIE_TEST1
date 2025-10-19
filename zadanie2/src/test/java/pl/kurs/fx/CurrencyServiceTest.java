@@ -1,6 +1,10 @@
 package pl.kurs.fx;
 
 import org.junit.Test;
+import pl.kurs.fx.exceptions.ExchangeRateFetchException;
+import pl.kurs.fx.interfaces.RateProvider;
+import pl.kurs.fx.model.CurrencyPair;
+import pl.kurs.fx.service.CurrencyService;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -50,20 +54,18 @@ public class CurrencyServiceTest {
         }
     }
 
+
     @Test
     public void shouldUseCacheWithinTtl() throws Exception {
-
         RateProvider provider = mock(RateProvider.class);
         MutableClock clock = new MutableClock(1_000_000L);
-        TtlRateCache cache = new TtlRateCache(10_000, clock); // TTL = 10s
+        TtlRateCache cache = new TtlRateCache(10_000, clock);
         CurrencyService service = new CurrencyService(provider, cache);
 
         when(provider.getRate("USD", "PLN")).thenReturn(4.00);
 
-
         double a1 = service.exchange("USD", "PLN", 10);
         double a2 = service.exchange("USD", "PLN", 5);
-
 
         assertEquals(40.0, a1, 1e-9);
         assertEquals(20.0, a2, 1e-9);
@@ -81,9 +83,7 @@ public class CurrencyServiceTest {
 
         assertEquals(40.0, service.exchange("USD", "PLN", 10), 1e-9);
 
-
         clock.plusMillis(10_001);
-
 
         assertEquals(41.0, service.exchange("USD", "PLN", 10), 1e-9);
 
@@ -94,7 +94,6 @@ public class CurrencyServiceTest {
     public void shouldBeThreadSafe_underParallelCalls() throws Exception {
         RateProvider provider = mock(RateProvider.class);
         when(provider.getRate("GBP", "PLN")).thenReturn(5.0);
-
 
         MutableClock clock = new MutableClock(System.currentTimeMillis());
         TtlRateCache cache = new TtlRateCache(1_000_000, clock);
@@ -113,9 +112,8 @@ public class CurrencyServiceTest {
         }
         pool.shutdown();
 
-        verify(provider, atMost(2)).getRate("GBP", "PLN");
+        verify(provider, times(1)).getRate("GBP", "PLN");
     }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRejectNegativeAmount() throws Exception {
@@ -124,6 +122,30 @@ public class CurrencyServiceTest {
         CurrencyService service = new CurrencyService(provider, cache);
 
         service.exchange("USD", "PLN", -1);
+    }
+
+    @Test
+    public void shouldReturnZeroAndNotCallProvider_whenAmountIsZero() throws Exception {
+        RateProvider provider = mock(RateProvider.class);
+        TtlRateCache cache = new TtlRateCache(10_000, Clock.systemUTC());
+        CurrencyService service = new CurrencyService(provider, cache);
+
+        double result = service.exchange("USD", "PLN", 0.0);
+
+        assertEquals(0.0, result, 1e-9);
+        verifyNoInteractions(provider);
+    }
+
+    @Test
+    public void shouldReturnAmountWhenCurrenciesEqual_ignoreCase_andNotCallProvider() throws Exception {
+        RateProvider provider = mock(RateProvider.class);
+        TtlRateCache cache = new TtlRateCache(10_000, Clock.systemUTC());
+        CurrencyService service = new CurrencyService(provider, cache);
+
+        double result = service.exchange("usd", "USD", 123.45);
+
+        assertEquals(123.45, result, 1e-9);
+        verifyNoInteractions(provider);
     }
 
     @Test
@@ -145,7 +167,6 @@ public class CurrencyServiceTest {
         verify(p, times(1)).getRate("EUR", "PLN");
     }
 
-
     @Test
     public void shouldNormalizeCodesToUppercase() throws Exception {
         RateProvider p = mock(RateProvider.class);
@@ -158,7 +179,6 @@ public class CurrencyServiceTest {
 
         verify(p, times(1)).getRate("USD", "PLN");
     }
-
 
     @Test(expected = ExchangeRateFetchException.class)
     public void shouldNotPolluteCacheWhenProviderFails() throws Exception {
@@ -175,28 +195,27 @@ public class CurrencyServiceTest {
         }
     }
 
-    @org.junit.Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void ttlRateCache_shouldRejectNonPositiveTtl() {
         new TtlRateCache(0, java.time.Clock.systemUTC());
     }
 
-
-    @org.junit.Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void currencyPair_shouldRejectNullFrom() {
         new CurrencyPair(null, "PLN");
     }
 
-    @org.junit.Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void currencyPair_shouldRejectBlankFrom() {
         new CurrencyPair("   ", "PLN");
     }
 
-    @org.junit.Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void currencyPair_shouldRejectNullTo() {
         new CurrencyPair("USD", null);
     }
 
-    @org.junit.Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void currencyPair_shouldRejectBlankTo() {
         new CurrencyPair("USD", "  ");
     }
