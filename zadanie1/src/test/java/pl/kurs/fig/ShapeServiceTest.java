@@ -23,16 +23,15 @@ public class ShapeServiceTest {
     private final ShapeService service = new ShapeService();
 
     @Test
-    public void shouldFindShapeWithMaxArea() {
+    public void shouldFindShapeWithMaxArea2() {
         ShapeFactory factory = new ShapeFactory(new MapShapeCache());
-        List<Shape> shapes = List.of(
-                factory.createSquare(2),
-                factory.createCircle(1),
-                factory.createRectangle(3, 4)
-        );
 
-        Shape max = service.maxArea(shapes);
-        assertTrue(max instanceof Rectangle);
+        Square s = factory.createSquare(2);
+        Circle c = factory.createCircle(1);
+        Rectangle r = factory.createRectangle(3, 4);
+
+        Shape max = service.maxArea(List.of(s, c, r));
+        assertSame(r, max);
     }
 
     @Test(expected = ShapeNotFoundException.class)
@@ -43,15 +42,15 @@ public class ShapeServiceTest {
     @Test
     public void shouldFindMaxPerimeterAmongCircles() {
         ShapeFactory factory = new ShapeFactory(new MapShapeCache());
-        List<Shape> shapes = List.of(
-                factory.createCircle(1),
-                factory.createCircle(2),
-                factory.createSquare(5)
-        );
+        Circle c1 = factory.createCircle(1);
+        Circle c2 = factory.createCircle(2);
+        Square s = factory.createSquare(5);
 
-        Circle maxCircle = service.maxPerimeterOfType(shapes, Circle.class);
-        assertEquals(2.0, maxCircle.getRadius(), 1e-9);
+        Circle result = service.maxPerimeterOfType(List.of(c1, c2, s), Circle.class);
+
+        assertSame(c2, result);
     }
+
 
     @Test(expected = ShapeNotFoundException.class)
     public void shouldThrowWhenTypeNotPresent_ForMaxPerimeterOfType() {
@@ -65,7 +64,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    public void shouldExportThenImportShapesJson_RoundTrip_AndUseCache() throws Exception {
+    public void exportImport_usesCache() throws Exception {
         ShapeFactory factory = new ShapeFactory(new MapShapeCache());
         List<Shape> input = List.of(
                 factory.createCircle(1.5),
@@ -78,24 +77,13 @@ public class ShapeServiceTest {
         tmpFile.deleteOnExit();
 
         service.exportToJson(input, tmpFile.getAbsolutePath());
-
-
         List<Shape> back = service.importFromJson(tmpFile.getAbsolutePath(), factory);
 
-        assertEquals(3, back.size());
-        assertTrue(back.get(0) instanceof Circle);
-        assertTrue(back.get(1) instanceof Rectangle);
-        assertTrue(back.get(2) instanceof Square);
-
-
-        assertSame(factory.createSquare(7), back.get(2));
-        assertSame(factory.createCircle(1.5), back.get(0));
-        assertSame(factory.createRectangle(15, 20), back.get(1));
+        assertEquals(input, back);
     }
 
     @Test
-    public void shouldUseFactoryOnImport_VerifyInteractionsOnly() throws Exception {
-
+    public void import_usesFactoryMethods() throws Exception {
         ShapeFactory factory = mock(ShapeFactory.class);
 
         Circle circleMock = mock(Circle.class);
@@ -107,20 +95,20 @@ public class ShapeServiceTest {
         when(factory.createSquare(7)).thenReturn(squareMock);
 
         ShapeFactory realFactory = new ShapeFactory(new MapShapeCache());
-        List<Shape> input = List.of(
+        List<Shape> toExport = List.of(
                 realFactory.createCircle(1.5),
                 realFactory.createRectangle(15, 20),
                 realFactory.createSquare(7)
         );
+
         Path tmp = Files.createTempFile("shapes-test-", ".json");
         File tmpFile = tmp.toFile();
         tmpFile.deleteOnExit();
-        service.exportToJson(input, tmpFile.getAbsolutePath());
 
+        service.exportToJson(toExport, tmpFile.getAbsolutePath());
+        List<Shape> imported = service.importFromJson(tmpFile.getAbsolutePath(), factory);
 
-        List<Shape> back = service.importFromJson(tmpFile.getAbsolutePath(), factory);
-
-        assertEquals(3, back.size());
+        assertEquals(3, imported.size());
         verify(factory, times(1)).createCircle(1.5);
         verify(factory, times(1)).createRectangle(15, 20);
         verify(factory, times(1)).createSquare(7);

@@ -9,17 +9,13 @@ public class FxInitializer {
     private FxInitializer() {
     }
 
-    public static TtlRateCache rateCache(long ttlMillis, Clock clock) {
-        return new TtlRateCache(ttlMillis, clock);
-    }
-
     public static RateProvider rateProvider() {
         return (from, to) -> {
             throw new UnsupportedOperationException("HTTP not required here");
         };
     }
 
-    public static CurrencyService currencyService(RateProvider provider, TtlRateCache cache) {
-        return new CurrencyService(provider, cache);
+    public static CurrencyService currencyService(RateProvider provider, long ttlMillis, Clock clock) {
+        return new CurrencyService(provider, ttlMillis, clock);
     }
 }

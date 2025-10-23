@@ -1,5 +1,6 @@
 package pl.kurs.fig.service;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.kurs.fig.exceptions.ShapeNotFoundException;
 import pl.kurs.fig.interfaces.Shape;
@@ -15,6 +16,7 @@ import java.util.*;
 public class ShapeService {
 
     private final ObjectMapper mapper = new ObjectMapper();
+
 
 
     public Shape maxArea(List<Shape> shapes) {
