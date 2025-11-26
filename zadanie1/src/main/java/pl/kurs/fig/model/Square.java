@@ -1,5 +1,7 @@
 package pl.kurs.fig.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import pl.kurs.fig.interfaces.Shape;
 
@@ -12,6 +14,11 @@ public class Square implements Shape {
         this.side = side;
     }
 
+    @JsonCreator
+    static Square createSquare(@JsonProperty("side") double side) {
+        return new Square(side);
+    }
+
     @Override
     public double calculateArea() {
         return side * side;
@@ -21,4 +28,5 @@ public class Square implements Shape {
     public double calculatePerimeter() {
         return 4 * side;
     }
+
 }

@@ -23,7 +23,7 @@ public class Main {
         String path = tmp.toString();
 
         service.exportToJson(shapes, path);
-        List<Shape> back = service.importFromJson(path, factory);
+        List<Shape> back = service.importFromJson(path);
 
         System.out.println("Saved to: " + path);
         System.out.println("Loaded " + back.size() + " figures. First: " + back.get(0));

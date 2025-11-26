@@ -17,5 +17,7 @@ import pl.kurs.fig.model.Square;
 })
 public interface Shape {
     double calculateArea();
+
     double calculatePerimeter();
+
 }

@@ -16,7 +16,7 @@ public class ShapeFactoryTest {
 
     @Before
     public void setUp() {
-        factory = new ShapeFactory(new MapShapeCache());
+        factory = new ShapeFactory();
     }
 
     @Test
